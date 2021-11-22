@@ -2,13 +2,20 @@ export const PORT = 7000;
 export const BASE_URL = `http://localhost:${PORT}`;
 import { Server } from 'http';
 import * as app from "../app";
+import { GroupSchema } from '../models/groups.model';
+import { Messages } from '../models/messages.model';
+import { RefreshTokenSchema } from '../models/tokens.model';
 import { UserSchema } from '../models/user.model';
 
 let server: Server;
 
-export function dropTables() {
-    UserSchema.remove({}).exec();
-    return;
+export async function dropTables() {
+    return await Promise.all([
+        UserSchema.remove({}),
+        RefreshTokenSchema.remove({}),
+        GroupSchema.remove({}),
+        Messages.remove({}),
+    ]);
 }
 
 export function startServer() {

@@ -11,7 +11,8 @@ const { OK, INTERNAL_SERVER_ERROR } = StatusCodes;
 connectDatabase(process.env.MONGO_URL || "mongodb://localhost/riktam-test", {
   useNewUrlParser: true,
   useUnifiedTopology: true,
-  useCreateIndex: true
+  useCreateIndex: true,
+  useFindAndModify: true,
 });
 
 app.use(express.json({ limit: "50mb" }));

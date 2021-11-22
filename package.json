@@ -5,7 +5,8 @@
   "main": "main.js",
   "scripts": {
     "prettier-format": "prettier --config .prettierrc app.ts' --write",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test-init": "./node_modules/jasmine/bin/jasmine.js init",
+    "test": ".\\node_modules\\jasmine\\bin\\jasmine.js"
   },
   "keywords": [],
   "author": "",

@@ -27,7 +27,7 @@ export function post(relativePath: string, options?: any): Promise<{ response: a
 export function put(relativePath: string, options?: any): Promise<{ response: any, body: string; }> {
     let url = relativePath.startsWith('/') ? BASE_URL + relativePath : relativePath;
     return new Promise((resolve, reject) => {
-        request.post(url, options, (error, response, body) => {
+        request.put(url, options, (error, response, body) => {
             if (error) {
                 return reject(error);
             }

@@ -46,7 +46,7 @@ export async function searchUser(req: Request, res: Response, next: NextFunction
         if (searchKey) {
             Object.assign(searchQuery, { email: new RegExp(searchKey, "i") });
         }
-        res.status(OK).send(await UserSchema.find().select("-password").exec());
+        res.status(OK).send(await UserSchema.find(searchQuery).select("-password").exec());
     } catch (error) {
         next(getFormattedError(error));
     }
