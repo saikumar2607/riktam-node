@@ -5,6 +5,21 @@
   "version": "0.2.0",
   "configurations": [
     {
+      "name": "Test",
+      "request": "launch",
+      "runtimeArgs": [
+        "test"
+      ],
+      "runtimeExecutable": "npm",
+      "skipFiles": [
+        "<node_internals>/**"
+      ],
+      "type": "pwa-node",
+      "env": {
+        "MONGO_URL":"mongodb://localhost/saiqa"
+      }
+    },
+    {
       "type": "pwa-node",
       "request": "launch",
       "name": "Launch Program",
@@ -15,18 +30,6 @@
         "MONGO_URL": "mongodb://localhost/rikram-test",
         "PORT": "5000"
       }
-    },
-    {
-      "type": "pwa-node",
-      "request": "launch",
-      "name": "Test",
-      "skipFiles": ["<node_internals>/**"],
-      "program": "node_modules\\jasmine\\bin\\jasmine.js",
-      "outFiles": ["${workspaceFolder}/**/*.js"],
-      "env": {
-        "MONGO_URL": "mongodb://localhost/rikram-test-scripts",
-        "PORT": "7000"
-      },
     }
   ]
 }
