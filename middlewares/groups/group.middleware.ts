@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from "express";
 import { StatusCodes } from "http-status-codes";
 import { GroupSchema } from "../../models/groups.model";
 import { getFormattedError } from "../../utils/error-handler";
+import { checkRequiredFields } from "../../utils/validation-utils";
 const { OK } = StatusCodes;
 
 export async function create(req: Request, res: Response, next: NextFunction) {
@@ -51,6 +52,7 @@ export async function deleteGroup(req: Request, res: Response, next: NextFunctio
 
 export async function addMember(req: Request, res: Response, next: NextFunction) {
     try {
+        checkRequiredFields(["member"], req.body);
         res.status(OK).send(await GroupSchema.findByIdAndUpdate(req.params.id,
             { $push: { members: req.body.member } },
             { new: true }
@@ -62,6 +64,7 @@ export async function addMember(req: Request, res: Response, next: NextFunction)
 
 export async function deleteMember(req: Request, res: Response, next: NextFunction) {
     try {
+        checkRequiredFields(["member"], req.body);
         res.status(OK).send(await GroupSchema.findByIdAndUpdate(req.params.id,
             { $pull: { members: req.body.member } },
             { new: true }
@@ -78,6 +81,16 @@ export async function getMembers(req: Request, res: Response, next: NextFunction
             .lean()
             .exec();
         res.status(OK).send({ members });
+    } catch (error) {
+        next(getFormattedError(error));
+    }
+}
+
+export async function detail(req: Request, res: Response, next: NextFunction) {
+    try {
+        res.status(OK).send(await GroupSchema.findById(req.params.id)
+            .populate({ path: "members" }).exec()
+        );
     } catch (error) {
         next(getFormattedError(error));
     }

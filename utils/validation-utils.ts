@@ -11,6 +11,10 @@ export function checkRequiredFields(filedsRequired: any, payload: any) {
     if (missingFields.length) {
         throw new APIError(`${missingFields.join(", ")} are required field(s)`);
     }
+    let missingDataField = filedsRequired.some(field => !payload[field] || !payload[field].trim().length);
+    if (missingDataField) {
+        throw new APIError(`${missingDataField} requires a value`);
+    }
     return;
 }
 

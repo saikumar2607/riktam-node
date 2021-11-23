@@ -41,12 +41,14 @@ export async function logout(req: Request, res: Response, next: NextFunction) {
 
 export async function searchUser(req: Request, res: Response, next: NextFunction) {
     try {
-        let searchQuery = { role: UserRole[UserRole.ADMIN], _id: { $ne: res.locals.user._id } };
+        // let searchQuery = { role: UserRole[UserRole.ADMIN], _id: { $ne: res.locals.user._id } };
+        let searchQuery = {};
         const searchKey: string = (req.query.searchKey) as string;
         if (searchKey) {
             Object.assign(searchQuery, { email: new RegExp(searchKey, "i") });
         }
-        res.status(OK).send(await UserSchema.find(searchQuery).select("-password").exec());
+        let a = await UserSchema.find(searchQuery).select("-password").exec();
+        res.status(OK).send(a);
     } catch (error) {
         next(getFormattedError(error));
     }

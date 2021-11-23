@@ -1,7 +1,12 @@
 import { dropTables, startServer, stopServer } from "./utils";
 import { get, post, put, deleteApi } from "./request-promise";
 import { createAdmin } from "../utils/default-scripts";
-let adminToken = "", userslist: any = [], userToken = "", groups = [];
+let adminToken = "",
+    userslist: any = [],
+    userToken = "",
+    groups: any = [],
+    searchedUsers: any = [],
+    messages: any = [];
 describe("App tests", () => {
     beforeAll(async (done) => {
         await dropTables();
@@ -111,6 +116,124 @@ describe("App tests", () => {
         expect(response.statusCode).toBe(200);
         groups = JSON.parse(response.body);
         expect(groups.length).toEqual(1);
+        done();
+    });
+    it("should add new member to group", async (done) => {
+        let { response } = await get(`/api/users/search`,
+            {
+                headers: { "Authorization": `Bearer ${userToken}` },
+                qs: { searchKey: "sai2" }
+            },
+        );
+        console.log(response.body);
+        searchedUsers = JSON.parse(response.body);
+        let { response: groupResponse } = await post(`/api/groups/${groups[0]._id}/add-member`, {
+            body: { member: searchedUsers[0]._id },
+            json: true,
+            headers: { "Authorization": `Bearer ${userToken}` }
+        });
+        expect(groupResponse.statusCode).toBe(200);
+        expect(groupResponse.body.members.length).toEqual(1);
+        done();
+    });
+    it("should get members list", async (done) => {
+        let { response: groupResponse } = await get(`/api/groups/${groups[0]._id}/members`, {
+            headers: { "Authorization": `Bearer ${userToken}` }
+        });
+        let rep = JSON.parse(groupResponse.body);
+        expect(groupResponse.statusCode).toBe(200);
+        expect(rep.members.length).toEqual(1);
+        done();
+    });
+    it("should remove member from group", async (done) => {
+        let { response: groupResponse } = await post(`/api/groups/${groups[0]._id}/delete-member`, {
+            body: { member: searchedUsers[0]._id },
+            json: true,
+            headers: { "Authorization": `Bearer ${userToken}` }
+        });
+        expect(groupResponse.statusCode).toBe(200);
+        expect(groupResponse.body.members.length).toEqual(0);
+        done();
+    });
+    it("should return error for invalid member", async (done) => {
+        let { response: groupResponse } = await post(`/api/groups/${groups[0]._id}/delete-member`, {
+            body: { member: "" },
+            json: true,
+            headers: { "Authorization": `Bearer ${userToken}` }
+        });
+        expect(groupResponse.statusCode).toBe(400);
+        done();
+    });
+    it("should send message to group", async (done) => {
+        let { response } = await post(`/api/groups/${groups[0]._id}/messages/send`, {
+            body: { message: "Helo" },
+            json: true,
+            headers: { "Authorization": `Bearer ${userToken}` }
+        });
+        expect(response.statusCode).toBe(200);
+        done();
+    });
+    it("should get messages of a group", async (done) => {
+        let { response } = await get(`/api/groups/${groups[0]._id}/messages`, {
+            headers: { "Authorization": `Bearer ${userToken}` }
+        });
+        let resp = JSON.parse(response.body);
+        expect(response.statusCode).toBe(200);
+        messages = resp;
+        expect(resp.length).toEqual(1);
+        done();
+    });
+    it("should add likes to message", async (done) => {
+        let { response } = await get(`/api/groups/${groups[0]._id}/messages/${messages[0]._id}/like`, {
+            headers: { "Authorization": `Bearer ${userToken}` }
+        });
+        let resp = JSON.parse(response.body);
+        expect(response.statusCode).toBe(200);
+        expect(resp.likes.length).toEqual(1);
+        done();
+    });
+    it("undo like a message", async (done) => {
+        let { response } = await get(`/api/groups/${groups[0]._id}/messages/${messages[0]._id}/undo-like`, {
+            headers: { "Authorization": `Bearer ${userToken}` }
+        });
+        let resp = JSON.parse(response.body);
+        expect(response.statusCode).toBe(200);
+        expect(resp.likes.length).toEqual(0);
+        done();
+    });
+    it("should add dislikes to message", async (done) => {
+        let { response } = await get(`/api/groups/${groups[0]._id}/messages/${messages[0]._id}/dislike`, {
+            headers: { "Authorization": `Bearer ${userToken}` }
+        });
+        let resp = JSON.parse(response.body);
+        expect(response.statusCode).toBe(200);
+        expect(resp.dislikes.length).toEqual(1);
+        done();
+    });
+    it("undo dislike a message", async (done) => {
+        let { response } = await get(`/api/groups/${groups[0]._id}/messages/${messages[0]._id}/undo-dislike`, {
+            headers: { "Authorization": `Bearer ${userToken}` }
+        });
+        let resp = JSON.parse(response.body);
+        expect(response.statusCode).toBe(200);
+        expect(resp.dislikes.length).toEqual(0);
+        done();
+    });
+    it("undo dislike a message", async (done) => {
+        let { response } = await get(`/api/groups/${groups[0]._id}/messages/${messages[0]._id}/unsend`, {
+            headers: { "Authorization": `Bearer ${userToken}` }
+        });
+        let resp = JSON.parse(response.body);
+        expect(response.statusCode).toBe(200);
+        done();
+    });
+    it("should get messages of a group", async (done) => {
+        let { response } = await get(`/api/groups/${groups[0]._id}/messages`, {
+            headers: { "Authorization": `Bearer ${userToken}` }
+        });
+        let resp = JSON.parse(response.body);
+        expect(response.statusCode).toBe(200);
+        expect(resp.length).toEqual(0);
         done();
     });
 });
